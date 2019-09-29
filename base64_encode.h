@@ -2,7 +2,7 @@
  * base64_encode.h
  *
  *   Copyright (C) <2019> <Fast Base64 URL lib>. All rights reserved.
- *   Author: <Sebastian Ene> <sebastian.ene07@gamil.com>
+ *   Author: Sebastian Ene <sebastian.ene07@gamil.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -69,10 +69,11 @@ typedef struct {
  *   allocates memory for the new encoded string.
  *
  * Input Parameters:
- *   text            - NULL terminated plain text string
- *   encoded_data    - location where we store the pointer to the encoded
+ *   text            - [in] NULL terminated plain text string
+ *   encoded_data    - [out] location where we store the pointer to the encoded
  *                    data buffer.
- *   encoded_len     - location where we store the size of the encoded_data
+ *   encoded_len     - [out] location where we store the size of the
+ *                     encoded_data
  *
  * Returned Value:
  *   OK in case of success otherwise a negative error code.
@@ -83,5 +84,29 @@ typedef struct {
  *
  ****************************************************************************/
 int base64_encode(const char *text, char **encoded_data, size_t *encoded_len);
+
+/****************************************************************************
+ * Name: base64_decode
+ *
+ * Description:
+ *   This method decodes the base64 URL input buffer into a NULL terminated
+ *   ASCII text. It allocates memory for the decoded buffer.
+ *
+ * Input Parameters:
+ *   decoded_text    - [out] here we store the decoded Base64 URL string
+ *   decoded_len     - [out] location where we store the size of the
+ *                    encoded_data
+ *   encoded_data    - [in] the encoded Base64URL buffer
+ *
+ * Returned Value:
+ *   OK in case of success otherwise a negative error code.
+ *
+ * Assumptions/Limitations:
+ *   The user should free the memory allocated by this function for the
+ *   decoded buffer.
+ *
+ ****************************************************************************/
+int base64_decode(char **decoded_text, size_t *decoded_len,
+  const char *encoded_data);
 
 #endif /* __BASE64_ENCODE_H */

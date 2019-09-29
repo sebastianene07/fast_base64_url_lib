@@ -2,7 +2,7 @@
  * base64_encode.c
  *
  *   Copyright (C) <2019> <Fast Base64 URL lib>. All rights reserved.
- *   Author: <Sebastian Ene> <sebastian.ene07@gamil.com>
+ *   Author: Sebastian Ene <sebastian.ene07@gamil.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -97,4 +97,10 @@ int base64_encode(const char *text, char **encoded_data, size_t *encoded_len)
   }
 
   return OK;
+}
+
+int base64_decode(const char *text, char **encoded_data, size_t *encoded_len)
+{
+
+	return OK;
 }
