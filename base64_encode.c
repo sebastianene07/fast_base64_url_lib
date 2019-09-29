@@ -44,57 +44,57 @@
 
 int base64_encode(const char *text, char **encoded_data, size_t *encoded_len)
 {
-	const char *base_64_alphabet = BASE_64_URL_ALPHABET;
+  const char *base_64_alphabet = BASE_64_URL_ALPHABET;
 
-	if (text == NULL ||
-			encoded_data == NULL ||
-			encoded_len == NULL) {
-		return -EINVAL;
-	}
+  if (text == NULL ||
+      encoded_data == NULL ||
+      encoded_len == NULL) {
+    return -EINVAL;
+  }
 
-	/* Assuming the code runs on little endian */
-	size_t plain_sz = strlen(text);
+  /* Assuming the code runs on little endian */
+  size_t plain_sz = strlen(text);
   *encoded_len = (plain_sz / 3 + (plain_sz % 3 ? 1 : 0)) * 4;
-	*encoded_data = calloc(1, *encoded_len);
+  *encoded_data = calloc(1, *encoded_len);
 
-	int i = 0;
-	for (i = 0; i < plain_sz / 3; i++) {
-		uint32_t acc = (*((uint32_t *)(text + i * 3)) & 0xFFFFFF);
+  int i = 0;
+  for (i = 0; i < plain_sz / 3; i++) {
+    uint32_t acc = (*((uint32_t *)(text + i * 3)) & 0xFFFFFF);
 
-		/* Apply mask to swap byte order in memory */
-		acc = ((acc & 0xFF) << 16) | (acc & 0xFF00) | ((acc & 0xFF0000) >> 16);
+    /* Apply mask to swap byte order in memory */
+    acc = ((acc & 0xFF) << 16) | (acc & 0xFF00) | ((acc & 0xFF0000) >> 16);
 
-		uint32_t *encode = ((uint32_t *)*encoded_data) + i;
-		*encode = (base_64_alphabet[acc & (0x3F)] << 24) |
-						  (base_64_alphabet[(acc & (0x3F << 6)) >> 6] << 16) |
-						  (base_64_alphabet[(acc & (0x3F << 12)) >> 12] << 8) |
-						  (base_64_alphabet[(acc & (0x3F << 18)) >> 18]);
-	}
+    uint32_t *encode = ((uint32_t *)*encoded_data) + i;
+    *encode = (base_64_alphabet[acc & (0x3F)] << 24) |
+              (base_64_alphabet[(acc & (0x3F << 6)) >> 6] << 16) |
+              (base_64_alphabet[(acc & (0x3F << 12)) >> 12] << 8) |
+              (base_64_alphabet[(acc & (0x3F << 18)) >> 18]);
+  }
 
-	if (plain_sz % 3) {
-		/* Take the remaining bytes */
-		uint32_t acc = 0, index = 0;
-		for (int j = i * 3; j < plain_sz; j++) {
-			acc |= (text[j] << (index * 8));
-			index++;
-		}
+  if (plain_sz % 3) {
+    /* Take the remaining bytes */
+    uint32_t acc = 0, index = 0;
+    for (int j = i * 3; j < plain_sz; j++) {
+      acc |= (text[j] << (index * 8));
+      index++;
+    }
 
-		/* Apply mask to swap byte order in memory */
-		acc = ((acc & 0xFF) << 16) | (acc & 0xFF00) | ((acc & 0xFF0000) >> 16);
-		uint32_t *encode = ((uint32_t *)*encoded_data) + i;
+    /* Apply mask to swap byte order in memory */
+    acc = ((acc & 0xFF) << 16) | (acc & 0xFF00) | ((acc & 0xFF0000) >> 16);
+    uint32_t *encode = ((uint32_t *)*encoded_data) + i;
 
-		/* Add remaining bytes plain_sz % 3 */
-		for (int i = 0; i <= plain_sz % 3; i++) {
-			 uint8_t shift_mask = 18 - i * 6;
-			 uint8_t shift_byte_final_pos = 8 * i;
+    /* Add remaining bytes plain_sz % 3 */
+    for (int i = 0; i <= plain_sz % 3; i++) {
+       uint8_t shift_mask = 18 - i * 6;
+       uint8_t shift_byte_final_pos = 8 * i;
 
-			 *encode |= (base_64_alphabet[(acc & (0x3F << shift_mask)) >> shift_mask]
-					<< shift_byte_final_pos);
-		}
+       *encode |= (base_64_alphabet[(acc & (0x3F << shift_mask)) >> shift_mask]
+          << shift_byte_final_pos);
+    }
 
-		/* Update the final length */
-		*encoded_len = strlen(*encoded_data);
-	}
+    /* Update the final length */
+    *encoded_len = strlen(*encoded_data);
+  }
 
-	return OK;
+  return OK;
 }

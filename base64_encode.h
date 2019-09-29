@@ -37,13 +37,13 @@
  * Public Macro Definitions
  ****************************************************************************/
 
-#define OK											(0)
-#define LENGTH(x)								(sizeof(x) / sizeof((x)[0]))
-#define BASE_64_ALPHABET_LEN		(64)
-#define BASE_64_GROUP_LEN				(4)
+#define OK                      (0)
+#define LENGTH(x)               (sizeof(x) / sizeof((x)[0]))
+#define BASE_64_ALPHABET_LEN    (64)
+#define BASE_64_GROUP_LEN       (4)
 
-#define BASE_64_URL_ALPHABET   	\
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+#define BASE_64_URL_ALPHABET     \
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
 /****************************************************************************
  * Public Types
@@ -52,8 +52,8 @@
 /* Test structure content */
 
 typedef struct {
-	const char *encoded_data;
-	const char *plain_data;
+  const char *encoded_data;
+  const char *plain_data;
 } base64_encode_test_t;
 
 /****************************************************************************
@@ -69,10 +69,10 @@ typedef struct {
  *   allocates memory for the new encoded string.
  *
  * Input Parameters:
- *   text 					- NULL terminated plain text string
- *   encoded_data		- location where we store the pointer to the encoded
+ *   text            - NULL terminated plain text string
+ *   encoded_data    - location where we store the pointer to the encoded
  *                    data buffer.
- *   encoded_len    - location where we store the size of the encoded_data
+ *   encoded_len     - location where we store the size of the encoded_data
  *
  * Returned Value:
  *   OK in case of success otherwise a negative error code.
