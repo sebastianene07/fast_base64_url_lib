@@ -4,9 +4,11 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "base64_encode.h"
 
+#ifdef LOCAL_BASE64_TEST
 static base64_encode_test_t g_tests[] = {
   {
     .plain_data 	= "Ce mai faci?",
@@ -28,13 +30,13 @@ static base64_encode_test_t g_tests[] = {
     .plain_data   = "if necessary, I will do my best to respond as quickly as possible. Of course, spammers are",
     .encoded_data = "aWYgbmVjZXNzYXJ5LCBJIHdpbGwgZG8gbXkgYmVzdCB0byByZXNwb25kIGFzIHF1aWNrbHkgYXMgcG9zc2libGUuIE9mIGNvdXJzZSwgc3BhbW1lcnMgYXJl"
   },
-	{
+  {
     .plain_data   = "???",
     .encoded_data = "Pz8_"
-	}
+  }
 };
 
-int main(int argc, char **argv)
+static int local_base64_test(void)
 {
   char *encoded_buffer = NULL;
   size_t encoded_buffer_len = 0;
@@ -42,7 +44,6 @@ int main(int argc, char **argv)
   size_t plain_text_len = 0;
 
   int ret = OK;
-
   fprintf(stdout, "**** ENCODING ****\n");
   /* Test encoding */
   for (int i = 0; i < LENGTH(g_tests); ++i)
@@ -87,5 +88,53 @@ int main(int argc, char **argv)
 
     free(plain_text);
   }
+}
+#endif /* LOCAL_BASE64_TEST */
+
+int main(int argc, char **argv)
+{
+  int ret = OK;
+  int opt;
+
+#ifndef LOCAL_BASE64_TEST
+  opterr = 0;
+  if (argc == 1) {
+    fprintf(stderr, "Usage: %s [-d|e] <string>\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  while ((opt = getopt(argc, argv, "e:d:")) != -1) {
+      switch (opt) {
+      case 'e': {
+        char *encoded_buffer = NULL;
+        size_t encoded_len = 0;
+
+        ret = base64_encode(optarg, &encoded_buffer, &encoded_len);
+        assert(ret == OK);
+
+        fprintf(stdout, "%s", encoded_buffer);
+        free(encoded_buffer);
+      } break;
+
+      case 'd': {
+        char *plain_text = NULL;
+        size_t plain_text_len = 0;
+
+        ret = base64_decode(&plain_text, &plain_text_len, optarg);
+        assert(ret == OK);
+
+        fprintf(stdout, "%s", plain_text);
+        free(plain_text);
+      } break;
+
+      default:
+          fprintf(stderr, "Usage: %s [-d|e] <string>\n", argv[0]);
+          exit(EXIT_FAILURE);
+      }
+  }
+
   return ret;
+#else
+  return local_base64_test();
+#endif
 }
