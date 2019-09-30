@@ -1,2 +1,6 @@
 *.swp
 .gdb_history
+base64_encode.o
+base64_url
+libbase_64_url.so
+test.o
