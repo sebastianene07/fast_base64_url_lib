@@ -34,8 +34,13 @@ int main(int argc, char **argv)
 {
   char *encoded_buffer = NULL;
   size_t encoded_buffer_len = 0;
+  char *plain_text = NULL;
+  size_t plain_text_len = 0;
+
   int ret = OK;
 
+  fprintf(stdout, "**** ENCODING ****\n");
+  /* Test encoding */
   for (int i = 0; i < LENGTH(g_tests); ++i)
   {
     ret = base64_encode(g_tests[i].plain_data, &encoded_buffer,
@@ -57,5 +62,26 @@ int main(int argc, char **argv)
     free(encoded_buffer);
   }
 
+  fprintf(stdout, "**** DECODING ****\n");
+  /* Test decoding */
+  for (int i = 0; i < LENGTH(g_tests); ++i)
+  {
+    ret = base64_decode(&plain_text, &plain_text_len, g_tests[i].encoded_data);
+    assert(ret == OK);
+
+    if (memcmp(plain_text, g_tests[i].plain_data, plain_text_len) != 0 ||
+        strlen(g_tests[i].plain_data) != plain_text_len) {
+
+      fprintf(stderr, "\n[Test_%d] FAILED\n", i);
+
+      fprintf(stdout, "differa: %s\n", g_tests[i].plain_data);
+      fprintf(stdout, "generat: %s\n", plain_text);
+    }
+    else {
+      fprintf(stdout, "[Test_%d] PASSED\n", i);
+    }
+
+    free(plain_text);
+  }
   return ret;
 }

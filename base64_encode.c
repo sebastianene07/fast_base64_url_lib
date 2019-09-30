@@ -39,6 +39,27 @@
 #include "base64_encode.h"
 
 /****************************************************************************
+ * Private Functions
+ ****************************************************************************/
+
+static uint8_t get_base64_alphabet_index(uint8_t c)
+{
+  if (c >= 'A' && c <= 'Z') {
+    return c - 'A';
+  } else if (c >= 'a' && c <= 'z') {
+    return c - 'a' + ('Z' - 'A' + 1);
+  } else if (c >= '0' && c <= '9') {
+    return c - '0' + ('z' - 'a' + 1) + ('Z' - 'A' + 1);
+  } else if (c == '-') {
+    return 63;
+  } else if (c == '_') {
+    return 64;
+  } else {
+    return INVALID_BASE64_URL_CHAR;
+  }
+}
+
+/****************************************************************************
  * Public Functions
  ****************************************************************************/
 
@@ -56,9 +77,12 @@ int base64_encode(const char *text, char **encoded_data, size_t *encoded_len)
   size_t plain_sz = strlen(text);
   *encoded_len = (plain_sz / 3 + (plain_sz % 3 ? 1 : 0)) * 4;
   *encoded_data = calloc(1, *encoded_len);
+  if (*encoded_data == NULL) {
+    return -ENOMEM;
+  }
 
   int i = 0;
-  for (i = 0; i < plain_sz / 3; i++) {
+  for (i ; i < plain_sz / 3; i++) {
     uint32_t acc = (*((uint32_t *)(text + i * 3)) & 0xFFFFFF);
 
     /* Apply mask to swap byte order in memory */
@@ -99,8 +123,51 @@ int base64_encode(const char *text, char **encoded_data, size_t *encoded_len)
   return OK;
 }
 
-int base64_decode(const char *text, char **encoded_data, size_t *encoded_len)
+int base64_decode(char **decoded_text, size_t *decoded_len,
+  const char *encoded_data)
 {
+  size_t encoded_len = strlen(encoded_data);
+  int i = 0, plain_index = 0;
 
-	return OK;
+  char *plain_text = calloc(1, encoded_len);
+  if (plain_text == NULL) {
+    return -ENOMEM;
+  }
+
+  for (i ; i < encoded_len / 4; i++) {
+
+    uint32_t *plain = ((uint32_t *)(plain_text + plain_index));
+
+    *plain = (get_base64_alphabet_index(encoded_data[3 + i * 4]) & 0x3F) |
+             ((get_base64_alphabet_index(encoded_data[2 + i *4 ]) & 0x3F) << 6) |
+             ((get_base64_alphabet_index(encoded_data[1 + i * 4]) & 0x3F) << 12) |
+             ((get_base64_alphabet_index(encoded_data[i * 4]) & 0x3F) << 18);
+
+    *plain = ((*plain & 0xFF) << 16) |
+             (*plain & 0xFF00) |
+             ((*plain & 0xFF0000) >> 16);
+
+    plain_index += 3;
+  }
+
+  if (encoded_len % 4) {
+    uint32_t *plain = ((uint32_t *)(plain_text + plain_index));
+
+    int j = i * 4;
+    for (j; j < encoded_len; j++) {
+      int shift_mask = j - i * 4;
+
+      *plain |= (get_base64_alphabet_index(encoded_data[j]) & 0x3F)
+        << (18 - shift_mask * 6);
+    }
+
+    *plain = ((*plain & 0xFF) << 16) |
+             (*plain & 0xFF00) |
+             ((*plain & 0xFF0000) >> 16);
+  }
+
+  *decoded_text = plain_text;
+  *decoded_len  = strlen(plain_text);
+
+  return OK;
 }

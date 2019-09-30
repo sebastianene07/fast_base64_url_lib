@@ -41,6 +41,7 @@
 #define LENGTH(x)               (sizeof(x) / sizeof((x)[0]))
 #define BASE_64_ALPHABET_LEN    (64)
 #define BASE_64_GROUP_LEN       (4)
+#define INVALID_BASE64_URL_CHAR (0xFF)
 
 #define BASE_64_URL_ALPHABET     \
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
