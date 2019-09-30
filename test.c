@@ -28,6 +28,10 @@ static base64_encode_test_t g_tests[] = {
     .plain_data   = "if necessary, I will do my best to respond as quickly as possible. Of course, spammers are",
     .encoded_data = "aWYgbmVjZXNzYXJ5LCBJIHdpbGwgZG8gbXkgYmVzdCB0byByZXNwb25kIGFzIHF1aWNrbHkgYXMgcG9zc2libGUuIE9mIGNvdXJzZSwgc3BhbW1lcnMgYXJl"
   },
+	{
+    .plain_data   = "???",
+    .encoded_data = "Pz8_"
+	}
 };
 
 int main(int argc, char **argv)

@@ -51,9 +51,9 @@ static uint8_t get_base64_alphabet_index(uint8_t c)
   } else if (c >= '0' && c <= '9') {
     return c - '0' + ('z' - 'a' + 1) + ('Z' - 'A' + 1);
   } else if (c == '-') {
-    return 63;
+    return 62;
   } else if (c == '_') {
-    return 64;
+    return 63;
   } else {
     return INVALID_BASE64_URL_CHAR;
   }
@@ -98,9 +98,8 @@ int base64_encode(const char *text, char **encoded_data, size_t *encoded_len)
   if (plain_sz % 3) {
     /* Take the remaining bytes */
     uint32_t acc = 0, index = 0;
-    for (int j = i * 3; j < plain_sz; j++) {
-      acc |= (text[j] << (index * 8));
-      index++;
+    for (index; index < plain_sz % 3; index++) {
+      acc |= (text[i * 3 + index] << (index * 8));
     }
 
     /* Apply mask to swap byte order in memory */
@@ -153,11 +152,10 @@ int base64_decode(char **decoded_text, size_t *decoded_len,
   if (encoded_len % 4) {
     uint32_t *plain = ((uint32_t *)(plain_text + plain_index));
 
-    int j = i * 4;
-    for (j; j < encoded_len; j++) {
-      int shift_mask = j - i * 4;
+    int shift_mask;
+    for (shift_mask = 0; shift_mask < encoded_len % 4; shift_mask++) {
 
-      *plain |= (get_base64_alphabet_index(encoded_data[j]) & 0x3F)
+      *plain |= (get_base64_alphabet_index(encoded_data[i * 4 + shift_mask]) & 0x3F)
         << (18 - shift_mask * 6);
     }
 
